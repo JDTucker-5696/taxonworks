@@ -9,9 +9,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Identifier form elements on SQED breakdown [#2700]
 
-[#2700]: https://github.com/SpeciesFileGroup/taxonworks/issues/2700
+### Changed
+- Add space on navbar in New taxon name [#2701]
 
-\-
+[#2700]: https://github.com/SpeciesFileGroup/taxonworks/issues/2700
+[#2701]: https://github.com/SpeciesFileGroup/taxonworks/issues/2701
 
 ## [0.22.2] - 2021-12-02
 
