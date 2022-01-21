@@ -1,4 +1,5 @@
 import baseCRUD, { annotations } from './base'
+import ajaxCall from 'helpers/ajaxCall'
 
 const permitParams = {
   observation_matrix_column_item: {
@@ -13,5 +14,6 @@ const permitParams = {
 
 export const ObservationMatrixColumnItem = {
   ...baseCRUD('observation_matrix_column_items', permitParams),
-  ...annotations('observation_matrix_column_items')
+  ...annotations('observation_matrix_column_items'),
+  createBatch: params => ajaxCall('post', '/observation_matrix_column_items/batch_create', params)
 }

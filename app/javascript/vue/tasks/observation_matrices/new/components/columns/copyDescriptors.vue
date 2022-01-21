@@ -111,6 +111,7 @@ import { ObservationMatrix, ObservationMatrixColumnItem } from 'routes/endpoints
 import {
   GetMatrixObservationColumns
 } from '../../request/resources'
+import { sortArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -178,21 +179,14 @@ export default {
     },
 
     addDescriptors () {
-      const promises = []
-      const index = this.columns.length
-      const data = this.descriptorsSelected.map(item => ({
+      const ids = sortArray(this.descriptorsSelected, 'position')
+        .map(item => item.id)
+
+      ObservationMatrixColumnItem.createBatch({
+        batch_type: 'observation_matrix_column_item_id',
         observation_matrix_id: this.matrixId,
-        descriptor_id: item.descriptor_id,
-        position: item.position + index,
-        type: ObservationTypes.Column.Descriptor
-      }))
-
-      data.sort((a, b) => a - b)
-      console.log(data.sort((a, b) => a.position - b.position))
-
-      data.forEach(descriptor => { promises.push(ObservationMatrixColumnItem.create({ observation_matrix_column_item: descriptor })) })
-
-      Promise.all(promises).then(() => {
+        observation_matrix_column_item_id: ids
+      }).then(_ => {
         this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
         this.descriptorsSelected = []
         TW.workbench.alert.create('Descriptors was successfully added to matrix.', 'notice')
