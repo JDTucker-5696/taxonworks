@@ -52,6 +52,9 @@
       <collecting-event
         class="margin-large-bottom"
         v-model="params.collectingEvents"/>
+      <data-attribute
+        class="margin-large-bottom"
+        v-model="params.dataAttributes"/>
       <collectors-component
         class="margin-large-bottom"
         role="Collector"
@@ -75,7 +78,7 @@
         v-model="params.loans"/>
       <user-component
         class="margin-large-bottom"
-        @onUserslist="usersList = $event"
+        @on-serslist="usersList = $event"
         v-model="params.user"/>
       <buffered-component v-model="params.buffered"/>
       <with-component
@@ -106,6 +109,7 @@ import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
+import DataAttribute from './filters/DataAttributes.vue'
 import { chunkArray } from 'helpers/arrays.js'
 
 import SpinnerComponent from 'components/spinner'
@@ -130,7 +134,8 @@ export default {
     RepositoryComponent,
     WithComponent,
     PreparationTypes,
-    CollectorsComponent
+    CollectorsComponent,
+    DataAttribute
   },
 
   emits: [
@@ -278,6 +283,7 @@ export default {
             exact_buffered_other_labels: undefined
           }
         },
+        dataAttributes: [],
         relationships: {
           biological_relationship_ids: []
         },
