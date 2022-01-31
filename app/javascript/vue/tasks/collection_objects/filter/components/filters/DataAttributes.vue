@@ -1,26 +1,21 @@
 <template>
   <div>
-    <h3>{{ title }}</h3>
+    <h3>Data attribute</h3>
     <div>
-      <p
-        class="middle"
-        v-if="dataAttribute.controlled_vocabulary_term_id">
-        <span class="margin-small-right">{{ cvtLabel[dataAttribute.controlled_vocabulary_term_id] }}</span>
-        <span
-          class="button button-circle btn-undo button-default"
-          @click="removeCVT"/>
-      </p>
-      <autocomplete
-        v-else
-        url="/controlled_vocabulary_terms/autocomplete"
-        :add-params="{'type[]' : 'Predicate'}"
-        label="label"
-        min="2"
-        placeholder="Select a predicate"
-        clear-after
-        @get-item="setCVT"
-        class="margin-small-bottom"
-        param="term"/>
+      <smart-selector
+        model="predicates"
+        get-url="/controlled_vocabulary_terms/"
+        autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+        :autocomplete-params="{'type[]' : 'Predicate'}"
+        :klass="klass"
+        @selected="setCVT"
+      >
+        <smart-selector-item
+          :item="dataAttribute.cvt"
+          label="name"
+          @unset="dataAttribute.cvt = undefined"
+        />
+      </smart-selector>
       <div class="horizontal-left-content">
         <input
           type="text"
@@ -35,25 +30,64 @@
         </label>
       </div>
       <button
-        :disabled="!dataAttribute.controlled_vocabulary_term_id"
+        :disabled="!dataAttribute.cvt"
         type="button"
         class="button normal-input button-default margin-small-top"
-        @click="addAttribute">Add
+        @click="addAttribute(dataAttribute)">Add
       </button>
     </div>
-    <list-component
-      :list="list"
-      label="label"
-      :delete-warning="false"
-      @index="removeItem"
-    />
+    <table
+      v-if="list.length"
+      class="full_width"
+    >
+      <thead>
+        <tr>
+          <th>Predicate</th>
+          <th>Value</th>
+          <th>Exact</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(item, index) in list"
+          :key="index"
+        >
+          <td>{{ item.cvt.name }}</td>
+          <td>{{ item.value }}</td>
+          <td>
+            <input
+              type="checkbox"
+              v-model="item.exact"
+            >
+          </td>
+          <td>
+            <v-btn
+              color="primary"
+              circle
+              @click="removeItem(index)"
+            >
+              <v-icon
+                color="white"
+                name="trash"
+                x-small
+              />
+            </v-btn>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import ListComponent from 'components/displayList'
+import { ref, watch } from 'vue'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
+import { URLParamsToJSON } from 'helpers/url/parse'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelectorItem from 'components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
   modelValue: {
@@ -61,53 +95,61 @@ const props = defineProps({
     required: true
   },
 
-  title: {
+  klass: {
     type: String,
-    default: 'Data attribute'
+    required: true
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
+const list = ref([])
 
-const dataAttributes = computed({
-  get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+watch(() => props.modelValue, (newVal, oldValue) => {
+  if (!newVal.length && oldValue.length) {
+    list.value = []
+  }
 })
 
-const list = computed(() => dataAttributes.value.map(item => (
-  {
-    ...item,
-    label: cvtLabel.value[item.controlled_vocabulary_term_id]
-  })
-))
+watch(list, newList => {
+  emit('update:modelValue', newList.map(item => ({
+    controlled_vocabulary_term_id: item.cvt.id,
+    value: item.value,
+    exact: item.exact
+  })))
+}, { deep: true })
 
 const makeNewAttribute = () => ({
-  controlled_vocabulary_term_id: undefined,
+  cvt: undefined,
   value: undefined,
   exact: false
 })
 
 const dataAttribute = ref(makeNewAttribute())
-const cvtLabel = ref({})
 
-const addAttribute = () => {
-  dataAttributes.value.push(dataAttribute.value)
+const addAttribute = item => {
+  list.value.push(item)
   dataAttribute.value = makeNewAttribute()
 }
 
-const setCVT = cvt => {
-  dataAttribute.value.controlled_vocabulary_term_id = cvt.id
-  cvtLabel.value[cvt.id] = cvt.label
-}
-
 const removeItem = index => {
-  dataAttributes.value.splice(index, 1)
-  cvtLabel.value.splice(index, 1)
+  list.value.splice(index, 1)
 }
 
-const removeCVT = () => {
-  dataAttribute.value.controlled_vocabulary_term_id = undefined
-  delete cvtLabel.value[dataAttribute.value.controlled_vocabulary_term_id]
+const setCVT = cvt => {
+  dataAttribute.value.cvt = cvt
+}
+
+const urlParams = URLParamsToJSON(location.href)
+
+if (urlParams.data_attributes_attributes) {
+  urlParams.data_attributes_attributes.forEach(item => {
+    ControlledVocabularyTerm.find(item.controlled_vocabulary_term_id).then(({ body }) => {
+      list.value.push({
+        cvt: body,
+        ...item
+      })
+    })
+  })
 }
 
 </script>

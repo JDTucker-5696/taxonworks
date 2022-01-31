@@ -54,7 +54,9 @@
         v-model="params.collectingEvents"/>
       <data-attribute
         class="margin-large-bottom"
-        v-model="params.dataAttributes"/>
+        v-model="params.dataAttributes.data_attributes_attributes"
+        klass="CollectionObject"
+      />
       <collectors-component
         class="margin-large-bottom"
         role="Collector"
@@ -157,7 +159,7 @@ export default {
     },
 
     parseParams () {
-      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.dataAttributes, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
     isParamsEmpty () {
@@ -283,7 +285,9 @@ export default {
             exact_buffered_other_labels: undefined
           }
         },
-        dataAttributes: [],
+        dataAttributes: {
+          data_attributes_attributes: []
+        },
         relationships: {
           biological_relationship_ids: []
         },
