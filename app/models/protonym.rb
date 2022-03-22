@@ -186,6 +186,33 @@ class Protonym < TaxonName
     joins(q.join_sources).where(t[:rank_class].matches('%' + rank + '%').to_sql).distinct
   end
 
+  # A convenience method to make this
+  # name a low-level synonym of another.
+  # Presently limited in scope to names that share rank (not rank group)
+  def synonymize_with(protonym)
+    return false if protonym.nil?
+    return false if protonym.rank_class.to_s != rank_class.to_s
+
+    begin
+      case nomenclatural_code
+      when  :iczn
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
+      when :icn
+        TaxonNameRelationship::Icn::Unaccepting::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
+      when :icnp
+        TaxonNameRelationship::Icnp::Unaccepting::Synonym.create!(subject_taxon_name: self, object_taxon_name: protonym)
+      when :icvnc
+        TaxonNameRelationship::Icnp::Unaccepting::SupressedSynony.create!(subject_taxon_name: self, object_taxon_name: protonym)
+      else 
+        return false
+      end
+    rescue ActiveRecord::RecordInvalid
+      return false
+    end
+
+  end
+
+
   # @return [Array of Strings]
   #   genera where the species was placed
   def all_generic_placements
@@ -217,8 +244,8 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-#        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-#        if !search_name.nil? && r.empty?
+        #        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+        #        if !search_name.nil? && r.empty?
         if !search_name.nil? && is_available?
           list = Protonym
             .ancestors_and_descendants_of(self)
@@ -473,11 +500,11 @@ class Protonym < TaxonName
   end
 
   def is_genus_or_species_rank?
-    GENUS_AND_SPECIES_RANK_NAMES .include?(rank_string)
+    GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
   end
 
   def is_family_or_genus_or_species_rank?
-    FAMILY_AND_GENUS_AND_SPECIES_RANK_NAMES .include?(rank_string)
+    FAMILY_AND_GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
   end
 
   def is_family_rank?

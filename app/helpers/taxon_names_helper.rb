@@ -34,11 +34,6 @@ module TaxonNamesHelper
     taxon_name_label(taxon_name)
   end
 
-  def taxon_name_label(taxon_name)
-    return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
-  end
-
   def taxon_name_rank_tag(taxon_name, css_class = [:feedback, 'feedback-info', 'feedback-thin'] )
     return nil if taxon_name.nil?
     content_tag(:span, taxon_name.rank || 'Combination', class: css_class)
@@ -182,6 +177,15 @@ module TaxonNamesHelper
         end
       end
     end
+  end
+
+  def taxon_name_inferred_combination_tag(taxon_name)
+    return nil if taxon_name.nil? || taxon_name.is_combination? || taxon_name.is_valid?
+    if taxon_name.is_protonym?
+      return nil if taxon_name.cached_primary_homonym == taxon_name.cached_secondary_homonym
+    end
+
+    tag.span(tag.em('inferred combination'), class: :subtle)
   end
 
   def taxon_name_gender_sentence_tag(taxon_name)

@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '>= 3.0', '<= 3.1'
+ruby '>= 3.0', '< 3.2'
 
 gem 'bundler', '~> 2.0'
 
@@ -51,7 +51,11 @@ gem 'bcrypt', '~> 3.1.11'
 gem 'closure_tree', '~> 7.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
-gem 'validates_timeliness', '~> 4.1', '>= 4.1.1' # TODO: updating to 5.0 causes "NoMethodError: undefined method `has_attached_file' for Image:Class"
+
+# TODO: updating to 5.0 causes "NoMethodError: undefined method `has_attached_file' for Image:Class"
+# This is likely not the real propegated error, see similar https://github.com/Shopify/bootsnap/issues/218
+# version 6 beta out now
+gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 12.0'
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
@@ -79,7 +83,7 @@ gem 'csl', '~> 1.6.0'
 gem 'bibtex-ruby', '~> 6.0'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'serrano', '~> 1.0.0'
+gem 'serrano', github: 'LocoDelAssembly/serrano', branch: 'fixes' #gem 'serrano', '~> 1.0.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
@@ -97,10 +101,10 @@ gem 'rgb', '~> 0.1'
 # Drawing
 gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 gem 'barby', '~> 0.6.8'
+gem 'ruby-graphviz', '~> 1.2.5', require: false
 
 # "Bio" and SFG gems
-#gem 'taxonifi', '~> 0.5.5'
-gem 'taxonifi', github: 'LocoDelAssembly/taxonifi', branch: 'ruby3'
+gem 'taxonifi', '~> 0.6.0'
 gem 'sqed', '0.6.0'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' # '~> 1.1', '>= 1.1.2'
@@ -133,7 +137,7 @@ group :test, :development do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'webdrivers', '~> 5.0', require: false
   gem 'prawn', '~> 2.4.0'
-  gem 'puma', '~> 5.5', '>= 5.5.2'
+  gem 'puma', '~> 5.5'
 end
 
 gem 'parallel_tests', group: [:development, :test]

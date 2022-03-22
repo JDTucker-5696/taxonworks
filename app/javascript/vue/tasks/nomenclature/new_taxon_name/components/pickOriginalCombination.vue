@@ -117,7 +117,7 @@ import VBtn from 'components/ui/VBtn/index.vue'
 import {
   originalCombinationType,
   combinationIcnType
-} from '../const/originalCombinationTypes'
+} from '../const/combinationTypes'
 
 export default {
   components: {
